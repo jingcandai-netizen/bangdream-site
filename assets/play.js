@@ -66,6 +66,8 @@
     if (force && window.JumpGame && window.JumpGame.refresh) window.JumpGame.refresh();
   }
 
+  window.addEventListener("jump-chibis-ready", () => { if (built) renderJumpChars(); });
+
   function renderJumpChars() {
     const box = document.getElementById("jump-chars");
     if (!box || !window.JumpGame) return;
@@ -109,7 +111,9 @@
       '<canvas id="jump-canvas" aria-label="跳一跳游戏区"></canvas>' +
       '<div class="jump-hud"><span class="jscore" id="jump-score">0</span><span class="jcombo" id="jump-combo"></span></div>' +
       '<div class="jump-overlay" id="jump-overlay"></div>' +
-      '</div></div>';
+      '</div>' +
+      '<p class="jump-credit">角色抠图：抖音 @荆门交运迷 · 仅作粉丝向展示</p>' +
+      '</div>';
     bindGenerator();
     bindGames();
     if (window.JumpGame) {

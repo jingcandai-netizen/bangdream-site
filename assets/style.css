@@ -630,3 +630,4 @@ body{overscroll-behavior-y:contain}
 .jump-chars .jchip .cimg{width:22px;height:22px;border-radius:50%;flex:none;object-fit:cover;
   border:1.5px solid rgba(255,255,255,.75);background:#222}
 .jump-chars .jchip[aria-pressed="true"] .cimg{border-color:#fff}
+.jump-credit{margin-top:8px;font-size:10.5px;color:var(--tx3);text-align:right}

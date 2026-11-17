@@ -23,6 +23,8 @@
 
   let A = null, cv = null, ctx = null, W = 0, H = 0, PX = 76;
   const SPR = {};
+  let CHIBIS = [];            // 来自 data/chibis.json 的 Q 版角色
+  const CHIBI_COLORS = ["#ff6b93","#f2a03d","#12a37a","#7b6cff","#ff8fa3","#6ec3ff","#c05ce8","#ffd166"];
   let state = "idle", platforms = [], cur = 0, camera = { x: 0, y: 0 }, camTarget = { x: 0, y: 0 };
   let power = 0, chargeStart = 0, raf = 0, lastT = 0;
   let jump = null, score = 0, combo = 0, best = 0, charId = "poppinparty";
@@ -37,10 +39,29 @@
   function iso(p) { return { x: (p.x - p.z) * ISO_X * PX, y: (p.x + p.z) * ISO_Y * PX } }
 
   function roster() {
+    if (CHIBIS.length) {
+      return CHIBIS.map((c, i) => ({ id: c.id, name: c.name, band: c.name, color: CHIBI_COLORS[i % CHIBI_COLORS.length], avatar: c.src, sprite: true }));
+    }
     return Object.keys(ROSTER).filter(id => A && A.BMAP[id]).map(id => {
       const c = ROSTER[id], b = A.BMAP[id];
       return { id, name: b.ja, band: b.ja, color: b.color, avatar: "images/chibi/" + (b.slug || id) + ".webp" };
     });
+  }
+  function loadChibis() {
+    return fetch("data/chibis.json", { cache: "no-store" })
+      .then(r => r.ok ? r.json() : [])
+      .then(list => {
+        CHIBIS = (list || []).map((c, i) => ({ id: c.id, name: c.name, src: "images/chibi2/" + c.file }));
+        CHIBIS.forEach(c => {
+          const im = new Image();
+          im.onload = () => { SPR[c.id] = im; if (!raf) draw(0) };
+          im.src = c.src;
+        });
+        if (CHIBIS.length && !CHIBIS.some(c => c.id === charId)) charId = CHIBIS[0].id;
+        if (CHIBIS.some(c => c.id === charId)) { /* 保留用户上次选择 */ }
+        if (CHIBIS.length) window.dispatchEvent(new CustomEvent("jump-chibis-ready"));
+      })
+      .catch(() => { });
   }
   function preloadSprites() {
     Object.keys(ROSTER).forEach(id => {
@@ -395,9 +416,10 @@
     ctx.beginPath(); ctx.ellipse(x, y + 2, size * .42, 5.5, 0, 0, 7); ctx.fill();
     ctx.globalAlpha = 1;
     ctx.save();
-    ctx.translate(x, y + bob);
+    ctx.translate(x, y + bob - 46);
     ctx.rotate(rot);
     ctx.scale(1 / sq, sq);
+    ctx.translate(0, 46);
     if (state === "charge") {
       const ring = 30 + power * 18;
       ctx.strokeStyle = "rgba(255,255,255," + (.25 + power * .55) + ")";
@@ -405,15 +427,11 @@
       ctx.beginPath(); ctx.arc(0, -size / 2, ring, 0, Math.PI * 2); ctx.stroke();
     }
     if (img) {
+      // 全身 Q 版贴图：底部对齐平台，按原始比例缩放
+      const ch = 92, cw = ch * (img.width / img.height);
       ctx.save();
-      ctx.beginPath(); ctx.arc(0, -size / 2, size / 2, 0, 7);
-      if (ctx.clip) ctx.clip();
-      ctx.drawImage(img, -size / 2, -size, size, size);
+      ctx.drawImage(img, -cw / 2, -ch, cw, ch);
       ctx.restore();
-      ctx.beginPath(); ctx.arc(0, -size / 2, size / 2, 0, 7);
-      ctx.strokeStyle = "rgba(255,255,255,.9)"; ctx.lineWidth = 3; ctx.stroke();
-      ctx.beginPath(); ctx.arc(0, -size / 2, size / 2 + 3, 0, 7);
-      ctx.strokeStyle = color; ctx.globalAlpha = .55; ctx.lineWidth = 2; ctx.stroke(); ctx.globalAlpha = 1;
     } else {
       const ch = ROSTER[charId] || ROSTER.poppinparty;
       drawChibi(0, 0, 58, Object.assign({}, ch, { outfit: color }), { t: tNow, state });
@@ -575,7 +593,8 @@
   }
 
   function setCharacter(id) {
-    if (!ROSTER[id]) return;
+    const valid = CHIBIS.length ? CHIBIS.some(c => c.id === id) : !!ROSTER[id];
+    if (!valid) return;
     charId = id; save("bdx_jump_char", id);
     const s = playerScreen();
     spawn(s.x, s.y - 16, 12, { col: ["#ffd166", "#ff5f8f", "#7b6cff", "#fff"], spd: 70, g: 60 });
@@ -626,6 +645,7 @@
     const b = el("jump-best"); if (b) b.textContent = best;
     if (!cv) return;
     preloadSprites();
+    loadChibis();
     resize(); bindInput(); reset(); draw(0);
     const ov = el("jump-overlay");
     if (ov) {
