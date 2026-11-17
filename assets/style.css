@@ -646,3 +646,14 @@ body.hasplayer .bgm-btn{bottom:calc(98px + env(safe-area-inset-bottom))}
   max-width:72vw;padding:8px 12px;border-radius:10px;background:rgba(27,31,44,.92);color:#fff;
   font-size:12px;line-height:1.5;opacity:0;transform:translateY(6px);transition:.2s;pointer-events:none}
 .bgm-tip.on{opacity:1;transform:none}
+
+/* ---------- 背景音乐面板 ---------- */
+.bgm-panel{position:fixed;left:12px;bottom:calc(78px + env(safe-area-inset-bottom));z-index:38;width:min(320px,82vw);
+  background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;box-shadow:var(--sh2)}
+.bgm-panel[hidden]{display:none}
+.bgm-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.bgm-head b{font-size:13px}
+.bgm-x{margin-left:auto;font-size:12px;color:var(--tx3);padding:2px 6px;border-radius:8px}
+.bgm-sub{font-size:10.5px;color:var(--tx3);line-height:1.6;margin:0 0 6px}
+.bgm-pick{width:100%;margin-top:8px;padding:9px;border-radius:10px;border:1px solid var(--line);
+  background:var(--card2);color:var(--tx2);font-size:12px;font-weight:600}

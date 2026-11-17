@@ -33,6 +33,28 @@
     }));
   }
 
+  const OFFICIAL = { id: "2149887904", title: "春日影 · CRYCHIC" };
+
+  function panel() {
+    let p = document.getElementById("bgm-panel");
+    if (p) { p.hidden = false; return p }
+    p = document.createElement("div");
+    p.id = "bgm-panel";
+    p.className = "bgm-panel";
+    p.innerHTML =
+      '<div class="bgm-head"><b>背景音乐</b><button class="bgm-x" aria-label="关闭">✕</button></div>' +
+      '<p class="bgm-sub">官方音源：' + OFFICIAL.title + '（网易云，本站不存音频）</p>' +
+      '<iframe id="bgm-frame" scrolling="no" frameborder="no" allow="autoplay" ' +
+      'src="https://music.163.com/outchain/player?type=2&id=' + OFFICIAL.id + '&auto=1&height=66" ' +
+      'style="width:100%;height:86px;border:0;border-radius:10px;background:#f5f5f7"></iframe>' +
+      '<p class="bgm-sub" style="margin-top:6px">也可以播放你本机的音频文件（只存本机、不上传）。</p>' +
+      '<button class="bgm-pick" type="button">选择本地音乐</button>';
+    document.body.appendChild(p);
+    p.querySelector(".bgm-x").onclick = () => { p.hidden = true };
+    p.querySelector(".bgm-pick").onclick = () => { input && input.click() };
+    return p;
+  }
+
   function ui() {
     if (btn) return;
     btn = document.createElement("button");
@@ -105,9 +127,9 @@
       } catch (e) { }
     }
     if (!url) {
-      // 什么也没有：让用户选一首本地音乐
-      toast("选一首本地音乐（只存本机）");
-      input && input.click();
+      // 仓库和本机都没有音频：展示官方音源播放器（不占用仓库、不侵权）
+      panel();
+      toast("已打开官方音源，点播放即可");
       return;
     }
     a.play().then(() => { enabled = true; setLS(true); paint() }).catch(() => { });
