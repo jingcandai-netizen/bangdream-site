@@ -167,6 +167,14 @@
   }
 
   function resize() {
+    const st = el("jump-sfx-test");
+    if (st) st.onclick = () => {
+      audio();
+      if (muted) setMuted(false);
+      tone(660, .12, { vol: .14 });
+      setTimeout(() => tone(880, .14, { vol: .12 }), 130);
+      setTimeout(() => tone(1320, .18, { vol: .1 }), 280);
+    };
     if (!cv) return;
     const rect = cv.parentElement.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
@@ -657,6 +665,9 @@
 
   function start() {
     audio();
+    setTimeout(() => {
+      if (AUD && AUD.state === "suspended") tip("音效被浏览器挂起了，点一下屏幕再试；微信内建议用系统浏览器打开");
+    }, 600);
     tone(660, .09, { vol: .1 }); tone(880, .12, { vol: .09, delay: .09 });
     const ov = el("jump-overlay"); if (ov) ov.hidden = true;
     reset(); lastT = performance.now();
@@ -678,6 +689,14 @@
 
   /* ---------------- 输入 ---------------- */
   function bindInput() {
+    const st = el("jump-sfx-test");
+    if (st) st.onclick = () => {
+      audio();
+      if (muted) setMuted(false);
+      tone(660, .12, { vol: .14 });
+      setTimeout(() => tone(880, .14, { vol: .12 }), 130);
+      setTimeout(() => tone(1320, .18, { vol: .1 }), 280);
+    };
     if (!cv) return;
     cv.addEventListener("pointerdown", e => { e.preventDefault(); audio(); if (state === "idle") { state = "charge"; power = 0; chargeStart = performance.now(); chargeSoundStart() } });
     const up = e => {
@@ -721,6 +740,14 @@
       mb.textContent = muted ? "🔇 音效关" : "🔊 音效开";
       mb.onclick = () => { setMuted(!muted); if (!muted) tone(880, .1, { vol: .08 }) };
     }
+    const st = el("jump-sfx-test");
+    if (st) st.onclick = () => {
+      audio();
+      if (muted) setMuted(false);
+      tone(660, .12, { vol: .14 });
+      setTimeout(() => tone(880, .14, { vol: .12 }), 130);
+      setTimeout(() => tone(1320, .18, { vol: .1 }), 280);
+    };
     if (!cv) return;
     preloadSprites();
     loadChibis();
