@@ -111,36 +111,59 @@ for al in albums:
         missed.append(al)
 print(f"专辑 {len(albums)} 张，匹配到封面 {len(matched)} 张，未匹配 {len(missed)} 张")
 
-# ---------- 3. 下载 + 压缩 ----------
+# ---------- 3. 下载 + 压缩（并发） ----------
+import concurrent.futures as cf
+
 covers = {}
 if os.path.exists(os.path.join(ROOT, "data/covers.json")) and not FORCE:
-    covers = json.load(open(os.path.join(ROOT, "data/covers.json"), encoding="utf-8"))
+    cov_path = os.path.join(ROOT, "data/covers.json")
+    if os.path.getsize(cov_path) > 500:          # 跳过前一次测试留下的小文件
+        covers = json.load(open(cov_path, encoding="utf-8"))
 
-downloaded = 0
-for i, (al, it) in enumerate(matched.items(), 1):
+todo = []
+for al, it in matched.items():
     slug = hashlib.md5(al.encode("utf-8")).hexdigest()[:10]
     out = os.path.join(OUT_DIR, slug + ".webp")
     rel = f"images/covers/{slug}.webp"
     if os.path.exists(out) and not FORCE:
         covers[al] = rel
-        continue
-    try:
-        raw = fetch(it["thumb"], f"cover-{slug}.jpg", ttl=30 * 86400)
-        im = Image.open(io.BytesIO(raw)).convert("RGB")
-        w = WIDTH
-        h = round(im.size[1] * w / im.size[0])
-        im.resize((w, h), Image.LANCZOS).save(out, "WEBP", quality=QUALITY, method=6)
-        covers[al] = rel
-        downloaded += 1
-        if downloaded % 25 == 0:
-            print(f"  已处理 {downloaded} 张…")
-    except Exception as e:
-        print("  跳过", al, e)
+    else:
+        todo.append((al, it, slug, out, rel))
 
-json.dump(covers, open(os.path.join(ROOT, "data/covers.json"), "w", encoding="utf-8"),
-          ensure_ascii=False, indent=0)
+print(f"已有 {len(covers)} 张，待下载 {len(todo)} 张", flush=True)
+state = {"n": 0, "fail": 0}
+
+
+def work(job):
+    al, it, slug, out, rel = job
+    try:
+        req = urllib.request.Request(it["thumb"], headers=UA)
+        with urllib.request.urlopen(req, timeout=30) as r:
+            raw = r.read()
+        im = Image.open(io.BytesIO(raw)).convert("RGB")
+        h = round(im.size[1] * WIDTH / im.size[0])
+        im.resize((WIDTH, h), Image.LANCZOS).save(out, "WEBP", quality=QUALITY, method=6)
+        state["n"] += 1
+        if state["n"] % 20 == 0:
+            print(f"  完成 {state['n']}/{len(todo)}", flush=True)
+        return al, rel
+    except Exception as e:
+        state["fail"] += 1
+        print("  跳过", al, str(e)[:60], flush=True)
+        return None
+
+
+with cf.ThreadPoolExecutor(max_workers=8) as ex:
+    for res in ex.map(work, todo):
+        if res:
+            covers[res[0]] = res[1]
+
+tmp = os.path.join(ROOT, "data/covers.json.tmp")
+with open(tmp, "w", encoding="utf-8") as f:
+    json.dump(covers, f, ensure_ascii=False, indent=0)
+os.replace(tmp, os.path.join(ROOT, "data/covers.json"))
 json.dump(missed, open(os.path.join(CACHE, "covers-missed.json"), "w", encoding="utf-8"),
           ensure_ascii=False, indent=1)
 total = sum(os.path.getsize(os.path.join(OUT_DIR, f)) for f in os.listdir(OUT_DIR))
-print(f"完成：新下载 {downloaded} 张，封面目录共 {len(os.listdir(OUT_DIR))} 个文件 / {total/1024:.0f}KB")
-print(f"未匹配封面 {len(missed)} 张（翻唱单曲与网易云独家合集居多），页面会退回渐变色块")
+print(f"完成：新下载 {state['n']} 失败 {state['fail']}，文件 {len(os.listdir(OUT_DIR))} 个 / {total/1024:.0f}KB", flush=True)
+print(f"未匹配封面 {len(missed)} 张（翻唱单曲与网易云独家合集居多），页面退回渐变色块", flush=True)

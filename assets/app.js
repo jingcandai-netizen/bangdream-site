@@ -6,7 +6,7 @@
 (async function () {
   "use strict";
   const bootEl = document.getElementById("boot");
-  let BANDS = [], SONGS = [], PLAYLISTS = [], CHANGELOG = [], META = {}, CUT = "";
+  let BANDS = [], SONGS = [], PLAYLISTS = [], CHANGELOG = [], COVERS = {}, META = {}, CUT = "";
   const BD = {"牛込 りみ":"3月23日","山吹 沙綾":"5月19日","戸山 香澄":"7月14日","市ヶ谷 有咲":"10月27日","花園 たえ":"12月4日","上原 ひまり":"10月23日","羽沢 つぐみ":"1月7日","美竹 蘭":"4月10日","宇田川 巴":"4月15日","青葉 モカ":"9月3日","白鷺 千聖":"4月6日","若宮 イヴ":"6月27日","丸山 彩":"12月27日","大和 麻弥":"11月3日","氷川 日菜":"3月20日","氷川 紗夜":"3月20日","宇田川 あこ":"7月3日","湊 友希那":"10月26日","白金 燐子":"10月17日","今井 リサ":"8月25日","北沢 はぐみ":"7月30日","ミッシェル / 奥沢 美咲":"10月1日","弦巻 こころ":"8月8日","瀬田 薫":"2月28日","松原 花音":"5月11日","八潮 瑠唯":"11月19日","広町 七深":"6月16日","倉田 ましろ":"2月19日","二葉 つくし":"9月15日","桐ヶ谷 透子":"12月16日","パレオ":"3月25日","マスキング":"5月12日","レイヤ":"1月13日","チュチュ":"12月7日","ロック":"7月17日","千早 愛音":"9月8日","長崎 そよ":"5月27日","高松 燈":"11月22日","椎名 立希":"8月9日","要 楽奈":"2月22日","オブリビオニス / 豊川 祥子":"2月14日","ティモリス / 八幡 海鈴":"4月7日","ドロリス / 三角 初華":"6月26日","アモーリス / 祐天寺 にゃむ":"6月1日","モーティス / 若葉 睦":"1月14日","峰月 律":"2月7日","千石 ユノ":"11月4日","仲町 あられ":"8月16日","藤 都子":"9月19日","宮永 ののか":"4月17日","琴平 凪":"12月10日","浜崎 まほろ":"7月16日","汐見 蛍":"3月12日","和泉 朋花":"10月24日","伊沢 なつめ":"3月30日","矢倉 蓬咲":"5月6日","梅里 ちえり":"4月2日","須賀 蕾叶":"7月28日","四宮 寧月":"3月5日","馬橋 心玖":"10月4日"};
   const IMGR = {"poppinparty":1.1321,"afterglow":1.1321,"hello-happy-world":1.1321,"pastel-palettes":1.1321,"roselia":1.1321,"raise-a-suilen":1.1321,"morfonica":1.1321,"mygo":1.5976,"avemujica":1.8305,"yumemita":1.7763,"millsage":1.4248,"ikka-dumb-rock":1.4136};
 
@@ -20,14 +20,15 @@
   }
 
   try {
-    const [bands, songs, meta, playlists, changelog] = await Promise.all([
+    const [bands, songs, meta, playlists, changelog, covers] = await Promise.all([
       fetch("data/bands.json").then(r => { if (!r.ok) throw new Error("data/bands.json " + r.status); return r.json() }),
       fetch("data/songs.json").then(r => { if (!r.ok) throw new Error("data/songs.json " + r.status); return r.json() }),
       fetch("data/meta.json", { cache: "no-store" }).then(r => { if (!r.ok) throw new Error("data/meta.json " + r.status); return r.json() }),
       fetch("data/playlists.json").then(r => r.ok ? r.json() : []).catch(() => []),
-      fetch("data/changelog.json").then(r => r.ok ? r.json() : []).catch(() => [])
+      fetch("data/changelog.json").then(r => r.ok ? r.json() : []).catch(() => []),
+      fetch("data/covers.json").then(r => r.ok ? r.json() : {}).catch(() => ({}))
     ]);
-    BANDS = bands; SONGS = songs; META = meta; PLAYLISTS = playlists; CHANGELOG = changelog;
+    BANDS = bands; SONGS = songs; META = meta; PLAYLISTS = playlists; CHANGELOG = changelog; COVERS = covers;
     CUT = meta.cut || meta.dataDate || "";
   } catch (e) { bootFail(e); return }
 
@@ -230,8 +231,11 @@ function songHTML(s){
   }
   if(s.bv)acts.push('<a class="act mv" href="https://www.bilibili.com/video/'+esc(s.bv)+'" target="_blank" rel="noopener">官方 MV ↗</a>');
   if(s.off)acts.push('<a class="act off" href="'+esc(s.off)+'" target="_blank" rel="noopener">官网条目 ↗</a>');
+  const cov=COVERS[s.al];
   return '<article class="song" style="--bc:'+b.color+'">'+
-    '<div class="top"><div class="smain">'+
+    '<div class="top">'+
+    (cov?'<span class="scov"><img src="'+cov+'" alt="" loading="lazy" decoding="async"></span>':'')+
+    '<div class="smain">'+
       '<div class="stitle">'+hl(s.t,st.q)+'</div>'+
       '<div class="smeta">'+
         '<span class="bsm"><i></i>'+esc(b.ja)+'</span>'+
@@ -648,7 +652,8 @@ function tip(m){const el=$("toast");el.textContent=m;el.classList.add("on");clea
     const future = g.d && g.d > new Date().toISOString().slice(0, 10);
     return '<div class="acard" data-ai="' + g.id + '">' +
       '<button type="button" aria-expanded="false" style="--bc:' + b.color + '">' +
-      '<span class="cov"></span>' +
+      '<span class="cov' + (COVERS[g.al] ? ' hasimg' : '') + '">' +
+      (COVERS[g.al] ? '<img src="' + COVERS[g.al] + '" alt="" loading="lazy" decoding="async">' : '') + '</span>' +
       '<span class="am"><span class="at">' + esc(g.al) + '</span>' +
       '<span class="as">' + g.bands.map(id => esc((BMAP[id] || { ja: id }).ja)).join(" · ") +
       (future ? '<em class="pre">未发售</em>' : '') + '</span></span>' +
@@ -809,7 +814,8 @@ function tip(m){const el=$("toast");el.textContent=m;el.classList.add("on");clea
       '<div class="doc"><h2>这一版加了什么</h2><ul>' +
       '<li><b>数据与页面分离</b>：曲目、乐队、专辑、歌单都是独立 JSON，改数据不用重做页面；官网有新碟时跑一次同步脚本即可。</li>' +
       '<li><b>首页</b>：每日一曲、年份分布、类型构成、乐队曲目量、最近发行，配合收藏进度。</li>' +
-      '<li><b>专辑视图</b>：344 张作品按发行日倒序，可按年份筛选、展开曲目。</li>' +
+      '<li><b>专辑封面</b>：从官网 Discography 抓了 275 张封面（160px WebP），歌曲列表左侧、专辑卡、首页最新作品都会显示；没抓到的（翻唱单曲、网易云独家合集）退回色块。</li>' +
+      '<li><b>专辑视图</b>：345 张作品按发行日倒序，可按年份筛选、展开曲目。</li>' +
       '<li><b>歌单</b>：6 个主题（入门、动画关联、翻唱、LIVE、合唱、深夜系），人工挑选 + 规则生成各有标注。</li>' +
       '<li><b>可安装 / 离线</b>：加了 manifest 与 service worker，装到桌面后断网也能看已加载过的页面。</li>' +
       '</ul></div>');

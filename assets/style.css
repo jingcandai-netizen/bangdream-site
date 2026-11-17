@@ -524,3 +524,12 @@ body{overscroll-behavior-y:contain}
   .hb .nm{width:88px}
   .legend{min-width:150px}
 }
+
+/* ---------- 专辑封面 ---------- */
+.song .scov{width:46px;height:46px;flex:none;border-radius:11px;overflow:hidden;display:block;
+  background:linear-gradient(150deg,var(--bc,#999),#15161e);border:1px solid var(--line2);position:relative}
+.song .scov img{width:100%;height:100%;object-fit:cover;display:block}
+.song .top{align-items:flex-start}
+.acard .cov img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.acard .cov.hasimg::after{display:none}
+.acard .cov.hasimg{border:1px solid var(--line2)}

@@ -7,7 +7,7 @@
 - 12 支官网在册乐队 + 3 个特别团体，711 首曲目（含同步进来的未发售新曲）
 - 首页：每日一曲、年份分布、类型构成、乐队曲目量、最近发行、收藏进度
 - 歌曲：搜索 / 多维筛选 / 三种排序 / 分组年份 / 页面内试听 / 想听·已听
-- 专辑：344 张作品按发行日倒序，年份筛选，展开曲目
+- 专辑：345 张作品按发行日倒序，年份筛选，展开曲目，带官网封面
 - 歌单：6 个主题（入门、动画关联、翻唱、LIVE、合唱、深夜系）
 - 数据状态：最后同步时间、更新日志，打开页面时每 90 秒检查一次更新
 - PWA：manifest + service worker，可安装、可离线看已缓存内容
@@ -35,6 +35,16 @@ node sync/sync.mjs --details 0      # 只看列表，不抓曲目
 node sync/sync.mjs --dry            # 只打印会新增什么，不写文件
 node sync/sync.mjs --force          # 忽略 7 天缓存重新抓
 ```
+
+专辑封面单独抓（官网 Discography 缩略图 → 160px WebP，并发下载，已存在的跳过）：
+
+```bash
+python3 sync/covers.py              # 需要 pillow
+python3 sync/covers.py --force      # 全部重抓
+```
+
+目前 335 张专辑里匹配到 275 张封面（约 1.7MB，放在 `images/covers/`，映射表 `data/covers.json`）。
+匹配不上的多是翻唱单曲和网易云独家合集，页面会用色块兜底。
 
 脚本做的是**增量新增**：只加数据里没有的曲目，从不删除；抓取失败只会报告，不会破坏已有数据。
 新增曲目会写进 `data/songs.json`，同时更新 `data/meta.json`（版本号、同步时间、统计）和
@@ -70,8 +80,11 @@ data/songs.json          曲目（t 曲名 / b 乐队 / k 类型 / d 发行日 /
 data/playlists.json      歌单（人工 titles 或 rule 规则）
 data/meta.json           版本、同步时间、统计
 data/changelog.json      更新日志
+data/covers.json         专辑标题 → 封面路径
 images/*.webp            乐队全员立绘
-sync/sync.mjs            官网同步脚本（带缓存，7 天）
+images/covers/*.webp     专辑封面（160px）
+sync/sync.mjs            官网曲目同步（带缓存，7 天）
+sync/covers.py           官网封面抓取（并发 + 压缩）
 serve.mjs                本地预览服务器
 sw.js / manifest.webmanifest   PWA
 ```
