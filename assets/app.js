@@ -115,7 +115,7 @@ updateProg();
 /* ================= 乐队网格 ================= */
 function bandCard(b){
   const n=SONGS.filter(s=>s.b===b.id).length;
-  const img=imgOf(b);
+  const img=b.slug?imgOf(b):"";
   return '<button class="bcard" data-b="'+b.id+'" style="--bc:'+b.color+'">'+
     '<div class="bimgwrap" style="--bir:'+(IMGR[b.slug||b.id]||1.1321)+'">'+
       (img?'<img loading="lazy" src="'+img+'" alt="'+esc(b.ja)+' 全员">':'<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#b9bfd0">无官方立绘</div>')+
@@ -340,7 +340,7 @@ function openBand(id){
   const covers=list.filter(s=>s.k==="cover").length;
   const h='<button class="bback" id="bb">← 返回</button>'+
    '<div class="bhero" style="--bc:'+b.color+'">'+
-     '<div class="bheroimg">'+(imgOf(b)?'<img src="'+imgOf(b)+'" alt="'+esc(b.ja)+' 全员立绘" width="560" height="688" decoding="async">':'')+'</div>'+
+     '<div class="bheroimg">'+(b.slug&&imgOf(b)?'<img src="'+imgOf(b)+'" alt="'+esc(b.ja)+' 全员立绘" width="560" height="688" decoding="async">':'')+'</div>'+
      '<div class="bheroin" style="--bc:'+b.color+'">'+
        '<h2>'+esc(b.ja)+'</h2><p class="kana">'+esc(b.kana||"")+'</p>'+
        (b.story?'':'<p class="desc">'+esc(b.desc||'')+'</p>')+

@@ -617,3 +617,16 @@ body{overscroll-behavior-y:contain}
 .jump-overlay .jump-result span{font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.6px}
 .jump-overlay .jump-result em{font-style:normal;font-size:12px;color:#ffd9e4;margin-top:6px}
 @media(max-width:420px){#jump-canvas{height:340px}}
+
+/* ---------- 跳一跳：角色选择 ---------- */
+.jump-chars{display:flex;gap:6px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none;align-items:center}
+.jump-chars::-webkit-scrollbar{display:none}
+.jump-chars .cl{flex:none;font-size:11px;color:var(--tx3);padding-right:2px}
+.jump-chars .jchip{flex:none;gap:6px}
+.jump-chars .jchip .cdot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+.jump-chars .jchip[aria-pressed="true"]{background:var(--hdrbg);border-color:var(--hdrbg);color:#fff}
+.jump-chars .jchip[aria-pressed="true"] .cdot{box-shadow:0 0 0 2px rgba(255,255,255,.5)}
+.jump-chars .jchip{padding-left:5px}
+.jump-chars .jchip .cimg{width:22px;height:22px;border-radius:50%;flex:none;object-fit:cover;
+  border:1.5px solid rgba(255,255,255,.75);background:#222}
+.jump-chars .jchip[aria-pressed="true"] .cimg{border-color:#fff}

@@ -66,6 +66,21 @@
     if (force && window.JumpGame && window.JumpGame.refresh) window.JumpGame.refresh();
   }
 
+  function renderJumpChars() {
+    const box = document.getElementById("jump-chars");
+    if (!box || !window.JumpGame) return;
+    const chars = window.JumpGame.listCharacters();
+    box.innerHTML = '<span class="cl">角色</span>' + chars.map(c =>
+      '<button class="chip jchip" data-id="' + c.id + '" aria-pressed="' + (c.selected ? "true" : "false") +
+      '" style="--bc:' + c.color + '"><img class="cimg" src="' + c.avatar + '" alt="" loading="lazy" decoding="async">' + esc(c.name) + '</button>').join("");
+    box.onclick = e => {
+      const b = e.target.closest(".jchip");
+      if (!b) return;
+      window.JumpGame.setCharacter(b.dataset.id);
+      box.querySelectorAll(".jchip").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    };
+  }
+
   function ensureMarkup() {
     const view = document.getElementById("v-play");
     if (!view || view.dataset.built === "1") return;
@@ -89,6 +104,7 @@
       '<div class="game" id="game-jump">' +
       '<div class="ghead"><div><h3>邦多利跳一跳</h3><p>按住蓄力，松开起跳；落在方块中心触发「完美」</p></div>' +
       '<div class="gscore"><b id="jump-best">0</b><span>最高分</span></div></div>' +
+      '<div class="jump-chars" id="jump-chars"></div>' +
       '<div class="jumpwrap">' +
       '<canvas id="jump-canvas" aria-label="跳一跳游戏区"></canvas>' +
       '<div class="jump-hud"><span class="jscore" id="jump-score">0</span><span class="jcombo" id="jump-combo"></span></div>' +
@@ -96,7 +112,10 @@
       '</div></div>';
     bindGenerator();
     bindGames();
-    if (window.JumpGame) window.JumpGame.init(A);
+    if (window.JumpGame) {
+      window.JumpGame.init(A);
+      renderJumpChars();
+    }
     else {
       const ov = document.getElementById("jump-overlay");
       if (ov) ov.innerHTML = '<div class="jump-tip">游戏脚本没加载成功，刷新页面试试</div>';
