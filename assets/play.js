@@ -97,6 +97,10 @@
     bindGenerator();
     bindGames();
     if (window.JumpGame) window.JumpGame.init(A);
+    else {
+      const ov = document.getElementById("jump-overlay");
+      if (ov) ov.innerHTML = '<div class="jump-tip">游戏脚本没加载成功，刷新页面试试</div>';
+    }
   }
 
   /* ---------------- 梗图卡 ---------------- */
