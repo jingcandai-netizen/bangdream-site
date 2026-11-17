@@ -36,6 +36,73 @@
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const rnd = (a, b) => a + Math.random() * (b - a);
 
+  /* ---------------- 音效（WebAudio 合成，无需素材） ---------------- */
+  let AUD = null, muted = store("bdx_jump_mute", false), chargeOsc = null, chargeGain = null;
+  function audio() {
+    if (!AUD) { try { AUD = new (window.AudioContext || window.webkitAudioContext)() } catch (e) { AUD = null } }
+    if (AUD && AUD.state === "suspended") AUD.resume().catch(() => { });
+    return AUD;
+  }
+  function tone(freq, dur, opt) {
+    opt = opt || {};
+    const ac = audio(); if (!ac || muted) return;
+    const t0 = ac.currentTime + (opt.delay || 0);
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = opt.type || "sine";
+    o.frequency.setValueAtTime(freq, t0);
+    if (opt.to) o.frequency.exponentialRampToValueAtTime(Math.max(20, opt.to), t0 + dur);
+    const vol = opt.vol == null ? .12 : opt.vol;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol, t0 + .012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g).connect(ac.destination);
+    o.start(t0); o.stop(t0 + dur + .03);
+  }
+  function noiseBurst(dur, vol, freq) {
+    const ac = audio(); if (!ac || muted) return;
+    const n = Math.floor(ac.sampleRate * (dur || .1));
+    const buf = ac.createBuffer(1, n, ac.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    const src = ac.createBufferSource(); src.buffer = buf;
+    const f = ac.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = freq || 1000; f.Q.value = 1.2;
+    const g = ac.createGain(); g.gain.value = vol == null ? .06 : vol;
+    src.connect(f).connect(g).connect(ac.destination);
+    src.start();
+  }
+  function chargeSoundStart() {
+    if (muted) return;
+    const ac = audio(); if (!ac) return;
+    chargeSoundStop();
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = "triangle"; o.frequency.value = 180;
+    g.gain.setValueAtTime(0.0001, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(.05, ac.currentTime + .06);
+    o.connect(g).connect(ac.destination); o.start();
+    chargeOsc = o; chargeGain = g;
+  }
+  function chargeSoundUpdate(p) {
+    if (!chargeOsc || !chargeGain || !AUD) return;
+    const t = AUD.currentTime;
+    chargeOsc.frequency.setTargetAtTime(180 + p * 540, t, .03);
+    chargeGain.gain.setTargetAtTime(.04 + p * .05, t, .05);
+  }
+  function chargeSoundStop() {
+    if (chargeOsc) { try { chargeOsc.stop() } catch (e) { } chargeOsc = null }
+    chargeGain = null;
+  }
+  function sfxJump(p) { chargeSoundStop(); tone(520 + p * 120, .14, { type: "triangle", to: 240, vol: .09 }); noiseBurst(.07, .05, 1600) }
+  function sfxLand(perfect) {
+    tone(150, .16, { type: "sine", to: 78, vol: .14 });
+    noiseBurst(.09, .055, 520);
+    if (perfect) { tone(1046, .12, { vol: .1, delay: .02 }); tone(1568, .16, { vol: .08, delay: .1 }) }
+  }
+  function sfxFail() { tone(320, .5, { type: "sawtooth", to: 70, vol: .1 }); noiseBurst(.28, .07, 320) }
+  function setMuted(v) {
+    muted = !!v; save("bdx_jump_mute", muted);
+    if (muted) chargeSoundStop();
+    const b = el("jump-mute"); if (b) b.textContent = muted ? "🔇 音效关" : "🔊 音效开";
+  }
+
   function iso(p) { return { x: (p.x - p.z) * ISO_X * PX, y: (p.x + p.z) * ISO_Y * PX } }
 
   function roster() {
@@ -494,6 +561,7 @@
     const dt = Math.min(50, t - lastT); lastT = t; tNow = t;
     if (state === "charge") {
       power = clamp((t - chargeStart) / CHARGE_MS, 0, 1);
+      chargeSoundUpdate(power);
       if (Math.random() < 0.25) {
         const s = playerScreen();
         spawn(s.x + rnd(-14, 14), s.y - rnd(4, 26), 1, { col: ["#ff5f8f", "#7b6cff", "#ffd166"], spd: 26, g: -30, kind: "note" });
@@ -553,12 +621,13 @@
     const next = platforms[cur + 1];
     const s = screen(platforms[cur]);
     if (!jump || !jump.ok) {
-      state = "fall"; jump.fallT = 0; combo = 0;
+      state = "fall"; jump.fallT = 0; combo = 0; sfxFail();
       spawn(s.x, s.y - 20, 18, { col: ["#ff5f8f", "#ffd166", "#fff"], spd: 90, g: 160 });
       setTimeout(gameOver, 520); return;
     }
     cur++;
     shake = 7;
+    sfxLand(jump.perfect);
     const gain = jump.perfect ? 2 : 1;
     score += gain + (combo >= 2 ? 1 : 0);
     const ns = screen(platforms[cur]);
@@ -608,10 +677,11 @@
   /* ---------------- 输入 ---------------- */
   function bindInput() {
     if (!cv) return;
-    cv.addEventListener("pointerdown", e => { e.preventDefault(); if (state === "idle") { state = "charge"; power = 0; chargeStart = performance.now() } });
+    cv.addEventListener("pointerdown", e => { e.preventDefault(); audio(); if (state === "idle") { state = "charge"; power = 0; chargeStart = performance.now(); chargeSoundStart() } });
     const up = e => {
       e.preventDefault();
       if (state !== "charge") return;
+      chargeSoundStop();
       const next = platforms[cur + 1];
       const d = MIN_D + power * (MAX_D - MIN_D);
       const from = { x: platforms[cur].x, z: platforms[cur].z };
@@ -624,6 +694,7 @@
       };
       jump.perfect = jump.ok && Math.abs(d - next.dist) <= Math.max(.09, next.size * .2);
       state = "jump";
+      sfxJump(power);
       const s = playerScreen();
       spawn(s.x, s.y, 8, { col: ["rgba(255,255,255,.85)"], spd: 50, g: 120 });
     };
@@ -643,6 +714,11 @@
     charId = store("bdx_jump_char", "poppinparty");
     if (!ROSTER[charId]) charId = "poppinparty";
     const b = el("jump-best"); if (b) b.textContent = best;
+    const mb = el("jump-mute");
+    if (mb) {
+      mb.textContent = muted ? "🔇 音效关" : "🔊 音效开";
+      mb.onclick = () => { setMuted(!muted); if (!muted) tone(880, .1, { vol: .08 }) };
+    }
     if (!cv) return;
     preloadSprites();
     loadChibis();

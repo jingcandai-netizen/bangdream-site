@@ -105,7 +105,8 @@
       '<div class="game" id="game-member"></div>' +
       '<div class="game" id="game-jump">' +
       '<div class="ghead"><div><h3>邦多利跳一跳</h3><p>按住蓄力，松开起跳；落在方块中心触发「完美」</p></div>' +
-      '<div class="gscore"><b id="jump-best">0</b><span>最高分</span></div></div>' +
+      '<div class="gscore"><b id="jump-best">0</b><span>最高分</span></div>' +
+      '<button class="sbtn" id="jump-mute" type="button" style="margin-left:8px">🔊 音效开</button></div>' +
       '<div class="jump-chars" id="jump-chars"></div>' +
       '<div class="jumpwrap">' +
       '<canvas id="jump-canvas" aria-label="跳一跳游戏区"></canvas>' +
