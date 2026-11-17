@@ -477,7 +477,10 @@ function switchTab(t,keepScroll,force){
   if(t==="home")renderHome();
   else if(t==="albums")renderAlbums();
   else if(t==="playlists")renderPlaylists();
-  else if(t==="play"&&window.PlayModule)window.PlayModule.render(true);
+  else if(t==="play"&&window.PlayModule){
+    if(!window.__playReady&&window.__playAPI){window.__playReady=true;window.PlayModule.init(window.__playAPI)}
+    else window.PlayModule.render(true);
+  }
   saveView();
   updateTotop();
 }
@@ -753,6 +756,8 @@ function tip(m){const el=$("toast");el.textContent=m;el.classList.add("on");clea
     $("q").value = st.q || "";
     $("sortBtn").textContent = "排序：" + (SORTNAME[st.sort] || SORTNAME.dateDesc);
     buildChips();
+    // 玩页延迟到第一次打开时再初始化（48 个角色贴图不参与首屏加载）
+    window.__playAPI = { SONGS, BANDS, BMAP, BD, KIND, fmt, esc, tip, imgOf };
     buildAlbums();
     renderAlbumFilters();
     render();
@@ -769,9 +774,6 @@ function tip(m){const el=$("toast");el.textContent=m;el.classList.add("on");clea
     renderPick();
     renderHomeBadges();
     renderAboutExtras();
-    if (window.PlayModule) {
-      window.PlayModule.init({ SONGS, BANDS, BMAP, BD, KIND, fmt, esc, tip, imgOf });
-    }
     pollMeta();
     if ("serviceWorker" in navigator && /^https?:/.test(location.protocol)) {
       navigator.serviceWorker.register("sw.js").catch(() => { });

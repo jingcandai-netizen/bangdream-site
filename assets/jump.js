@@ -115,20 +115,27 @@
     });
   }
   function loadChibis() {
-    return fetch("data/chibis.json", { cache: "no-store" })
+    return fetch("data/chibis.json")
       .then(r => r.ok ? r.json() : [])
       .then(list => {
-        CHIBIS = (list || []).map((c, i) => ({ id: c.id, name: c.name, src: "images/chibi2/" + c.file }));
-        CHIBIS.forEach(c => {
-          const im = new Image();
-          im.onload = () => { SPR[c.id] = im; if (!raf) draw(0) };
-          im.src = c.src;
-        });
+        CHIBIS = (list || []).map(c => ({ id: c.id, name: c.name, src: "images/chibi2/" + c.file }));
         if (CHIBIS.length && !CHIBIS.some(c => c.id === charId)) charId = CHIBIS[0].id;
-        if (CHIBIS.some(c => c.id === charId)) { /* 保留用户上次选择 */ }
+        ensureSprite(charId);
         if (CHIBIS.length) window.dispatchEvent(new CustomEvent("jump-chibis-ready"));
+        else preloadSprites();
       })
       .catch(() => { });
+  }
+  /* 用到谁才加载谁：只请求当前角色的贴图 */
+  function ensureSprite(id) {
+    if (!id || SPR[id]) return;
+    const c = CHIBIS.find(x => x.id === id);
+    const src = c ? c.src : null;
+    if (!src) return;
+    const im = new Image();
+    im.decoding = "async";
+    im.onload = () => { SPR[id] = im; if (!raf) draw(0); else draw(16) };
+    im.src = src;
   }
   function preloadSprites() {
     Object.keys(ROSTER).forEach(id => {
@@ -508,8 +515,13 @@
       ctx.drawImage(img, -cw / 2, -ch, cw, ch);
       ctx.restore();
     } else {
-      const ch = ROSTER[charId] || ROSTER.poppinparty;
-      drawChibi(0, 0, 58, Object.assign({}, ch, { outfit: color }), { t: tNow, state });
+      // 贴图还没加载好：画一个乐队色音符占位，别回退成旧手绘小人
+      ensureSprite(charId);
+      ctx.fillStyle = color;
+      ctx.beginPath(); ctx.arc(0, -46, 20, 0, 7); ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,.92)";
+      ctx.font = "800 22px system-ui,sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText("♪", 0, -46);
     }
     ctx.restore();
   }
@@ -677,7 +689,7 @@
   function setCharacter(id) {
     const valid = CHIBIS.length ? CHIBIS.some(c => c.id === id) : !!ROSTER[id];
     if (!valid) return;
-    charId = id; save("bdx_jump_char", id);
+    charId = id; save("bdx_jump_char", id); ensureSprite(id);
     const s = playerScreen();
     spawn(s.x, s.y - 16, 12, { col: ["#ffd166", "#ff5f8f", "#7b6cff", "#fff"], spd: 70, g: 60 });
     draw(16);
@@ -749,7 +761,6 @@
       setTimeout(() => tone(1320, .18, { vol: .1 }), 280);
     };
     if (!cv) return;
-    preloadSprites();
     loadChibis();
     resize(); bindInput(); reset(); draw(0);
     const ov = el("jump-overlay");
