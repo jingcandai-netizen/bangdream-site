@@ -1,0 +1,31 @@
+name: 同步官方数据
+
+on:
+  schedule:
+    - cron: "17 20 * * *"   # 每天 UTC 20:17（北京时间 04:17）
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 抓取官网 Discography
+        run: node sync/sync.mjs --pages 3 --details 10
+      - name: 有变化就提交
+        run: |
+          if [ -n "$(git status --porcelain data)" ]; then
+            git config user.name "bdx-sync-bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add data
+            git commit -m "chore(data): 同步官方 Discography $(date -u +%F)"
+            git push
+          else
+            echo "没有新数据"
+          fi

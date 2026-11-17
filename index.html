@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12131a" id="thememeta">
+<meta name="color-scheme" content="light">
+<meta name="description" content="BanG Dream!（邦多利）乐队与歌曲图鉴：12 支官网在册乐队、707 首曲目的原创/翻唱/LIVE 分类、专辑与发行日，附网易云试听与官方 MV；数据可自动同步官方站更新。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="邦多利乐队与歌曲图鉴 · BanG Dream! 乐队与曲目索引">
+<meta property="og:description" content="12 支乐队 · 707 首曲目 · 专辑 / 时间线 / 歌单 / 统计，数据随官方站自动更新。">
+<meta property="og:image" content="images/poppinparty.webp">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23e8426e'/%3E%3Ccircle cx='16' cy='16' r='7.5' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css">
+<title>邦多利乐队与歌曲图鉴 | BanG Dream! 乐队 · 曲目 · 专辑 · 歌单</title>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdrin">
+    <div class="brand">
+      <span class="dot" aria-hidden="true"></span>
+      <div>
+        <h1>邦多利乐队与歌曲图鉴</h1>
+        <p class="hsub" id="hsub">BanG Dream! 乐队名录与曲目索引</p>
+      </div>
+      <a class="syncchip" id="syncchip" href="#/about" title="数据状态">
+        <i class="live" aria-hidden="true"></i><span id="synctxt">同步中…</span>
+      </a>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="切换视图">
+    <button role="tab" data-tab="home" aria-selected="true">首页</button>
+    <button role="tab" data-tab="songs" aria-selected="false">歌曲</button>
+    <button role="tab" data-tab="bands" aria-selected="false">乐队</button>
+    <button role="tab" data-tab="albums" aria-selected="false">专辑</button>
+    <button role="tab" data-tab="playlists" aria-selected="false">歌单</button>
+    <button role="tab" data-tab="about" aria-selected="false">说明</button>
+  </nav>
+</header>
+
+<div class="wxnote" id="wxnote" hidden>
+  <b>在微信里打开：</b>页面能正常看，但「页面内试听」和「去听 / MV」这类外部音源可能被微信拦住。想看能播、能跳转的完整版，点右上角「···」→「在浏览器打开」即可。
+</div>
+
+<div class="syncbar" id="syncbar" hidden><span id="syncbar-txt"></span><button id="syncbar-bt">立即刷新</button></div>
+
+<main>
+  <!-- 首页 -->
+  <section class="view" id="v-home">
+    <div class="hero">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="hero-in">
+        <div class="hero-top">
+          <span class="pill">深夜 Live 会场</span>
+          <span class="hero-date" id="home-date"></span>
+        </div>
+        <h2>今晚，从哪首开始？</h2>
+        <p class="hero-sub" id="home-sub">选一首，或者让它替你选。</p>
+        <div class="pick" id="home-pick" aria-live="polite"></div>
+        <div class="hero-acts">
+          <button class="btn primary" id="hero-random">随机一首</button>
+          <button class="btn" id="hero-today">换一首今日曲</button>
+          <a class="btn ghost" href="#/playlists">编辑歌单 →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats" id="stats"></div>
+    <div class="mybox" id="mybox"></div>
+
+    <div class="sec">
+      <div class="sech"><h2>年份分布</h2><p>按首发年份统计收录曲目</p></div>
+      <div class="panel" id="chart-years"></div>
+    </div>
+
+    <div class="sec">
+      <div class="sech"><h2>曲目构成</h2><p>原创 / 翻唱 / 合唱 / LIVE</p></div>
+      <div class="panel" id="chart-kinds"></div>
+    </div>
+
+    <div class="sec">
+      <div class="sech"><h2>乐队曲目量</h2><p>收录数最多的 8 支</p></div>
+      <div class="panel" id="chart-bands"></div>
+    </div>
+
+    <div class="sec">
+      <div class="sech"><h2>最近发行</h2><p>数据里最新的 6 张作品</p></div>
+      <div class="alist" id="home-latest"></div>
+    </div>
+  </section>
+
+  <!-- 歌曲 -->
+  <section class="view" id="v-songs" hidden>
+    <div class="tools" id="tools">
+      <div class="sb">
+        <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="搜曲名 / 专辑 / 乐队…" aria-label="搜索">
+        <button id="qc" aria-label="清空搜索">清空</button>
+        <button class="fbtn" id="fbtn" aria-expanded="false" aria-controls="fpanel">筛选<span class="fnum" id="fnum" hidden>0</span></button>
+      </div>
+      <div class="fpanel" id="fpanel" hidden>
+        <div class="chips" id="fband"><span class="cl">乐队</span></div>
+        <div class="chips" id="fkind"><span class="cl">类型</span></div>
+        <div class="chips" id="fmore"><span class="cl">其他</span></div>
+      </div>
+      <div class="actbar" id="actbar" hidden></div>
+    </div>
+    <div class="cnt">
+      <span id="cntTxt" aria-live="polite"></span>
+      <span style="display:flex;gap:6px;flex:none">
+        <button class="sbtn" id="sortBtn">排序：新→旧</button>
+        <button class="sbtn" id="randBtn">随机一首</button>
+      </span>
+    </div>
+    <div class="list" id="list"></div>
+    <button class="more" id="moreBtn" hidden>加载更多</button>
+    <div class="empty" id="empty" hidden></div>
+  </section>
+
+  <!-- 乐队 -->
+  <section class="view" id="v-bands" hidden>
+    <div class="sec">
+      <div class="sech"><h2>官方 Artist 页 12 支乐队</h2><p>点卡片看成员与曲目</p></div>
+      <div class="grid" id="bandgrid"></div>
+    </div>
+    <div class="sec">
+      <div class="sech"><h2>特别团体</h2><p>官网 Artist 页未单列</p></div>
+      <div class="grid" id="bandgrid2"></div>
+    </div>
+    <div class="sec">
+      <div class="sech"><h2>企划年表</h2><p>从 2015 年企划启动到现在</p></div>
+      <div class="tl">
+        <div class="tlr"><b>2015</b><p>木谷高明启动企划（中村航原案），Poppin'Party 于 2 月结成</p></div> <div class="tlr"><b>2016</b><p>2 月 24 日首张单曲「Yes! BanG_Dream!」发售</p></div> <div class="tlr"><b>2017</b><p>1–4 月 TV 动画第一季；3 月 16 日手游《Garupa☆Pico…少女乐团派对！》上线；Roselia 出道曲「BLACK SHOUT」、Pastel＊Palettes / Afterglow / Hello, Happy World! 同年出道</p></div> <div class="tlr"><b>2018</b><p>1 月动画第二季；7 月伴奏乐队 THE THIRD 更名为 RAISE A SUILEN</p></div> <div class="tlr"><b>2019</b><p>1 月动画第三季；9 月 FILM LIVE 剧场版</p></div> <div class="tlr"><b>2020</b><p>Morfonica 出道，首张单曲「Daylight」5 月 27 日发售</p></div> <div class="tlr"><b>2021</b><p>剧场版「Episode of Roselia」两部曲、FILM LIVE 2nd Stage</p></div> <div class="tlr"><b>2022</b><p>1 月剧场版「ぽっぴん'どりーむ！」；7 月 Morfonication</p></div> <div class="tlr"><b>2023</b><p>6–9 月 TV 动画「It's MyGO!!!!!」播出，MyGO!!!!! 正式亮相</p></div> <div class="tlr"><b>2025</b><p>1–3 月 TV 动画「Ave Mujica」播出</p></div> <div class="tlr"><b>2026</b><p>7–9 月 TV 动画「ゆめ∞みた」播出；9 月 24 日新手游《Our Notes》全球上线；millsage、一家Dumb Rock! 相继出道</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 乐队详情 -->
+  <section class="view" id="v-band" hidden></section>
+
+  <!-- 专辑 -->
+  <section class="view" id="v-albums" hidden>
+    <div class="tools">
+      <div class="sb">
+        <input id="aq" type="search" inputmode="search" autocomplete="off" placeholder="搜专辑 / 单曲名…" aria-label="搜索专辑">
+        <button id="aqc" aria-label="清空专辑搜索">清空</button>
+      </div>
+      <div class="chips" id="ayear"><span class="cl">年份</span></div>
+    </div>
+    <div class="cnt"><span id="acnt"></span><span class="sbtn hint" id="aexpand">全部展开 / 收起</span></div>
+    <div class="alist" id="albumlist"></div>
+    <div class="empty" id="aempty" hidden></div>
+  </section>
+
+  <!-- 歌单 -->
+  <section class="view" id="v-playlists" hidden>
+    <div class="plgrid" id="plgrid"></div>
+    <div id="pldetail" hidden></div>
+  </section>
+
+  <!-- 说明 -->
+  <section class="view" id="v-about" hidden></section>
+</main>
+
+<footer class="foot" id="foot"></footer>
+
+<div class="player" id="player" aria-live="polite">
+  <div class="pin">
+    <div class="pn" id="pname">—<span id="pmeta"></span></div>
+    <button id="ptoggle" aria-label="播放/暂停">❚❚</button>
+    <button id="pseq" aria-pressed="false" aria-label="连播：播完自动下一首" title="连播：播完自动下一首">🔂</button>
+    <button id="pclose" aria-label="关闭">✕</button>
+  </div>
+  <div class="pbar"><i id="pfill"></i></div>
+</div>
+
+<button class="totop" id="totop" aria-label="回到顶部">↑</button>
+<audio id="au" preload="none" playsinline></audio>
+<div class="toast" id="toast" role="status"></div>
+<div class="boot" id="boot">正在载入图鉴数据…</div>
+
+<script src="assets/app.js" defer></script>
+</body>
+</html>

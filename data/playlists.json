@@ -1,0 +1,100 @@
+[
+ {
+  "id": "starter",
+  "title": "第一次听邦多利",
+  "p1": "#3a1f2e",
+  "p2": "#15161e",
+  "sub": "从 Poppin'Party 到 Ave Mujica，按时间线挑了各队最有代表性的一首",
+  "titles": [
+   "Yes! BanG_Dream!",
+   "STAR BEAT!～ホシノコドウ～",
+   "走り始めたばかりのキミに",
+   "BLACK SHOUT",
+   "熱色スターマイン",
+   "R",
+   "Neo-Aspect",
+   "FIRE BIRD",
+   "ブルームブルーム",
+   "迷星叫",
+   "音一会",
+   "壱雫空",
+   "詩超絆",
+   "Ave Mujica",
+   "黒のバースデイ",
+   "KiLLKiSS",
+   "Choir ‘S’ Choir",
+   "Angles",
+   "That Is How I Roll!",
+   "R·I·O·T",
+   "しゅわりん☆どり～みん",
+   "えがおのオーケストラっ!",
+   "夢現妄想世界",
+   "ホーミー・タイッ！！",
+   "起死開戦",
+   "Don't be afraid!",
+   "春日影 - From THE FIRST TAKE"
+  ]
+ },
+ {
+  "id": "anison",
+  "title": "动画 / 联动关联曲",
+  "p1": "#2a2338",
+  "p2": "#15161e",
+  "sub": "出现在 TV 动画、剧场版或联动企划里的曲目",
+  "rule": {
+   "tie": true,
+   "limit": 24,
+   "sort": "dateDesc"
+  }
+ },
+ {
+  "id": "covers",
+  "title": "翻唱精选",
+  "p1": "#1f2f3a",
+  "p2": "#15161e",
+  "sub": "最近 30 首官方翻唱，按发行日倒序",
+  "rule": {
+   "kind": "cover",
+   "limit": 30,
+   "sort": "dateDesc"
+  }
+ },
+ {
+  "id": "live",
+  "title": "LIVE / 剧场版",
+  "p1": "#33222a",
+  "p2": "#15161e",
+  "sub": "剧场版、LIVE 音源与特别版本",
+  "rule": {
+   "kind": "live",
+   "limit": 20,
+   "sort": "dateDesc"
+  }
+ },
+ {
+  "id": "collab",
+  "title": "合唱 · 合作曲",
+  "p1": "#243a2e",
+  "p2": "#15161e",
+  "sub": "跨乐队合唱与外部合作企划曲",
+  "rule": {
+   "kind": "collab",
+   "sort": "dateDesc"
+  }
+ },
+ {
+  "id": "avego",
+  "title": "深夜系：MyGO × Ave Mujica",
+  "p1": "#1e2340",
+  "p2": "#0f1017",
+  "sub": "晚一点听更合适的两组，20 首",
+  "rule": {
+   "band": [
+    "mygo",
+    "avemujica"
+   ],
+   "limit": 20,
+   "sort": "dateDesc"
+  }
+ }
+]

@@ -1,0 +1,15 @@
+{
+  "name": "邦多利乐队与歌曲图鉴",
+  "short_name": "邦多利图鉴",
+  "description": "BanG Dream! 乐队、曲目、专辑与歌单索引",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f4f9",
+  "theme_color": "#12131a",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "images/poppinparty.webp", "sizes": "560x688", "type": "image/webp", "purpose": "any" },
+    { "src": "images/roselia.webp", "sizes": "560x688", "type": "image/webp", "purpose": "maskable" }
+  ]
+}
