@@ -631,3 +631,18 @@ body{overscroll-behavior-y:contain}
   border:1.5px solid rgba(255,255,255,.75);background:#222}
 .jump-chars .jchip[aria-pressed="true"] .cimg{border-color:#fff}
 .jump-credit{margin-top:8px;font-size:10.5px;color:var(--tx3);text-align:right}
+
+/* ---------- 背景音乐按钮 ---------- */
+.bgm-btn{position:fixed;left:12px;bottom:calc(24px + env(safe-area-inset-bottom));z-index:36;
+  width:42px;height:42px;border-radius:50%;background:rgba(27,31,44,.82);color:#fff;font-size:17px;
+  display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);
+  box-shadow:0 8px 20px -10px rgba(27,31,44,.6);border:1px solid rgba(255,255,255,.12);opacity:.72;
+  transition:opacity .2s,transform .12s}
+.bgm-btn:hover{opacity:1}
+.bgm-btn.on{opacity:1;background:linear-gradient(135deg,#ff4d7d,#7b6cff)}
+.bgm-btn:active{transform:scale(.92)}
+body.hasplayer .bgm-btn{bottom:calc(98px + env(safe-area-inset-bottom))}
+.bgm-tip{position:fixed;left:12px;bottom:calc(72px + env(safe-area-inset-bottom));z-index:37;
+  max-width:72vw;padding:8px 12px;border-radius:10px;background:rgba(27,31,44,.92);color:#fff;
+  font-size:12px;line-height:1.5;opacity:0;transform:translateY(6px);transition:.2s;pointer-events:none}
+.bgm-tip.on{opacity:1;transform:none}

@@ -76,7 +76,7 @@
     const o = ac.createOscillator(), g = ac.createGain();
     o.type = "triangle"; o.frequency.value = 180;
     g.gain.setValueAtTime(0.0001, ac.currentTime);
-    g.gain.exponentialRampToValueAtTime(.05, ac.currentTime + .06);
+    g.gain.exponentialRampToValueAtTime(.075, ac.currentTime + .06);
     o.connect(g).connect(ac.destination); o.start();
     chargeOsc = o; chargeGain = g;
   }
@@ -84,19 +84,19 @@
     if (!chargeOsc || !chargeGain || !AUD) return;
     const t = AUD.currentTime;
     chargeOsc.frequency.setTargetAtTime(180 + p * 540, t, .03);
-    chargeGain.gain.setTargetAtTime(.04 + p * .05, t, .05);
+    chargeGain.gain.setTargetAtTime(.06 + p * .06, t, .05);
   }
   function chargeSoundStop() {
     if (chargeOsc) { try { chargeOsc.stop() } catch (e) { } chargeOsc = null }
     chargeGain = null;
   }
-  function sfxJump(p) { chargeSoundStop(); tone(520 + p * 120, .14, { type: "triangle", to: 240, vol: .09 }); noiseBurst(.07, .05, 1600) }
+  function sfxJump(p) { chargeSoundStop(); tone(520 + p * 120, .16, { type: "triangle", to: 240, vol: .14 }); noiseBurst(.07, .05, 1600) }
   function sfxLand(perfect) {
-    tone(150, .16, { type: "sine", to: 78, vol: .14 });
+    tone(150, .18, { type: "sine", to: 78, vol: .2 });
     noiseBurst(.09, .055, 520);
-    if (perfect) { tone(1046, .12, { vol: .1, delay: .02 }); tone(1568, .16, { vol: .08, delay: .1 }) }
+    if (perfect) { tone(1046, .13, { vol: .14, delay: .02 }); tone(1568, .18, { vol: .11, delay: .1 }) }
   }
-  function sfxFail() { tone(320, .5, { type: "sawtooth", to: 70, vol: .1 }); noiseBurst(.28, .07, 320) }
+  function sfxFail() { tone(320, .5, { type: "sawtooth", to: 70, vol: .13 }); noiseBurst(.28, .08, 320) }
   function setMuted(v) {
     muted = !!v; save("bdx_jump_mute", muted);
     if (muted) chargeSoundStop();
@@ -656,6 +656,8 @@
   }
 
   function start() {
+    audio();
+    tone(660, .09, { vol: .1 }); tone(880, .12, { vol: .09, delay: .09 });
     const ov = el("jump-overlay"); if (ov) ov.hidden = true;
     reset(); lastT = performance.now();
     if (!raf) loop(lastT);
