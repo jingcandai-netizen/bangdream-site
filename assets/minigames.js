@@ -3,6 +3,14 @@
 (function () {
   "use strict";
   let A = null;
+  const DIFFS = {
+    easy:   { label: "轻松", bpm: 84,  speedMax: 190, win: 104, perf: 46, lives: 15, cSpeed: 78,  cSpawn: 1.5,  cRadius: 62, cLives: 8 },
+    normal: { label: "普通", bpm: 100, speedMax: 300, win: 84,  perf: 36, lives: 12, cSpeed: 96,  cSpawn: 1.15, cRadius: 48, cLives: 6 },
+    hard:   { label: "困难", bpm: 128, speedMax: 400, win: 62,  perf: 24, lives: 8,  cSpeed: 130, cSpawn: 0.85, cRadius: 40, cLives: 5 },
+  };
+  let diff = "easy";
+  try { const d = localStorage.getItem("bdx_game_diff"); if (d && DIFFS[d]) diff = d } catch (e) { }
+  const D = () => DIFFS[diff] || DIFFS.easy;
   const $ = id => document.getElementById(id);
   const store = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v } catch (e) { return d } };
   const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)) } catch (e) { } };
@@ -59,7 +67,7 @@
     cv: null, ctx: null, W: 0, H: 0, raf: 0, last: 0,
     lanes: 4, notes: [], t: 0, beat: 0, speed: 200, score: 0, combo: 0, best: 0,
     lives: 12, running: false, nextSpawn: 0, started: 0, hitFlash: [0, 0, 0, 0], missFlash: 0,
-    bpm: 100,
+    bpm: 84,
   };
 
   function rhythmInit() {
@@ -73,8 +81,11 @@
 
   function rhythmStart() {
     const ov = $("rhythm-overlay"); if (ov) ov.hidden = true;
-    Object.assign(rhythm, { notes: [], t: 0, beat: 0, score: 0, combo: 0, lives: 12, running: true, nextSpawn: 0, started: 0 });
+    rhythm.bpm = D().bpm;
+    Object.assign(rhythm, { notes: [], t: 0, beat: 0, score: 0, combo: 0, lives: D().lives, running: true, nextSpawn: 0, started: 0 });
     const sc = $("rhythm-score"); if (sc) sc.textContent = "0";
+    const lv0 = $("rhythm-lives"); if (lv0) lv0.textContent = "♥".repeat(D().lives);
+    const cb0 = $("rhythm-combo"); if (cb0) cb0.textContent = "";
     ac(); rhythm.last = performance.now(); rhythm.started = rhythm.last;
     if (!rhythm.raf) rhythmLoop(rhythm.last);
   }
@@ -94,7 +105,7 @@
       rhythm.nextSpawn = rhythm.t + beatMs * rnd(.85, 1.15);
       rhythm.beat++;
       if (rhythm.beat % 2 === 1) kick(); else hat();
-      rhythm.speed = 190 + Math.min(110, rhythm.beat * 1.4);
+      rhythm.speed = Math.min(D().win === 104 ? 150 : 190, D().speedMax - 120) + Math.min(110, rhythm.beat * 1.4);
     }
     const dtSec = dt / 1000;
     const line = rhythm.H - 92;
@@ -124,9 +135,9 @@
       if (d < bestDist) { bestDist = d; bestNote = n }
     });
     rhythm.hitFlash[lane] = 1;
-    if (bestNote && bestDist <= 84) {
+    if (bestNote && bestDist <= D().win) {
       bestNote.hit = true; bestNote.dead = true;
-      const perfect = bestDist <= 36;
+      const perfect = bestDist <= D().perf;
       rhythm.combo++;
       const gain = (perfect ? 100 : 50) + rhythm.combo * 2;
       rhythm.score += gain;
@@ -214,10 +225,10 @@
   }
   function catchStart() {
     const ov = $("catch-overlay"); if (ov) ov.hidden = true;
-    Object.assign(cat, { items: [], score: 0, lives: 6, spawnT: 0, speed: 96, running: true });
+    Object.assign(cat, { items: [], score: 0, lives: D().cLives, spawnT: 0, speed: D().cSpeed, running: true });
     cat.x = cat.W / 2; cat.targetX = cat.x;
     const sc = $("catch-score"); if (sc) sc.textContent = "0";
-    const lv = $("catch-lives"); if (lv) lv.textContent = "♥".repeat(6);
+    const lv = $("catch-lives"); if (lv) lv.textContent = "♥".repeat(D().cLives);
     cat.last = performance.now();
     if (!cat.raf) catchLoop(cat.last);
   }
@@ -228,7 +239,7 @@
     const dtSec = dt / 1000;
     cat.speed += dtSec * 3.2;
     cat.spawnT += dtSec;
-    if (cat.spawnT > Math.max(.62, 1.15 - cat.score * .004)) {
+    if (cat.spawnT > Math.max(.6, D().cSpawn - cat.score * .004)) {
       cat.spawnT = 0;
       const star = Math.random() < .14;
       cat.items.push({ x: rnd(26, cat.W - 26), y: -20, r: star ? 14 : 12, star, vy: cat.speed * rnd(.9, 1.15) });
@@ -240,7 +251,7 @@
       // 靠近底部时轻微吸附，减少"明明碰到却没接到"
       const catY0 = cat.H - 54;
       if (it.y > catY0 - 110) it.x += (cat.x - it.x) * Math.min(1, dtSec * 3.2);
-      if (!it.dead && it.y > catY - 34 && it.y < catY + 34 && Math.abs(it.x - cat.x) < 48) {
+      if (!it.dead && it.y > catY - 36 && it.y < catY + 36 && Math.abs(it.x - cat.x) < D().cRadius) {
         it.dead = true;
         cat.score += it.star ? 100 : 20;
         blip(it.star ? 1568 : 880, .09, .09, "triangle");
@@ -305,7 +316,22 @@
     rhythmInit(); catchInit();
     bind();
   }
+  function diffUI() {
+    const box = document.getElementById("game-diff");
+    if (!box) return;
+    box.innerHTML = '<span class="cl">难度</span>' + Object.keys(DIFFS).map(k =>
+      '<button class="chip gdiff" data-d="' + k + '" aria-pressed="' + (k === diff) + '">' + DIFFS[k].label + '</button>').join("");
+    box.onclick = e => {
+      const b = e.target.closest(".gdiff"); if (!b) return;
+      diff = b.dataset.d;
+      try { localStorage.setItem("bdx_game_diff", diff) } catch (err) { }
+      box.querySelectorAll(".gdiff").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+      rhythmEnd(); catchEnd();
+    };
+  }
+
   function bind() {
+    diffUI();
     const cv = $("rhythm-canvas");
     if (cv) {
       const onTap = e => {
@@ -345,6 +371,6 @@
     if (cb) cb.onclick = catchStart;
     window.addEventListener("resize", () => { rhythmInit(); catchInit() });
   }
-  function render() { rhythmInit(); catchInit() }
+  function render() { rhythmInit(); catchInit(); diffUI() }
   window.MiniGames = { init, render };
 })();

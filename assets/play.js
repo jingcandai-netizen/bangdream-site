@@ -64,6 +64,7 @@
     if (!A) return;
     if (!built || force) { ensureMarkup(); renderMemes(); }
     if (force && window.JumpGame && window.JumpGame.refresh) window.JumpGame.refresh();
+    if (window.MiniGames) window.MiniGames.render();
   }
 
   window.addEventListener("jump-chibis-ready", () => { if (built) renderJumpChars(); });
@@ -116,6 +117,7 @@
       '</div>' +
       '<p class="jump-credit">角色抠图：抖音 @荆门交运迷 · 仅作粉丝向展示</p>' +
       '</div>' +
+      '<div class="game-diff" id="game-diff"></div>' +
       '<div class="game" id="game-rhythm">' +
       '<div class="ghead"><div><h3>节奏点点</h3><p>音符落到判定线时点对应轨道，连击越长分越高</p></div>' +
       '<div class="gscore"><b id="rhythm-best">0</b><span>最高分</span></div></div>' +

@@ -674,3 +674,7 @@ body.hasplayer .bgm-btn{bottom:calc(98px + env(safe-area-inset-bottom))}
   background:rgba(12,13,20,.66);backdrop-filter:blur(3px);text-align:center;padding:16px}
 .mini-overlay[hidden]{display:none}
 @media(max-width:420px){.mini-wrap canvas{height:330px}}
+.game-diff{display:flex;gap:6px;align-items:center;overflow-x:auto;padding:14px 0 2px;scrollbar-width:none}
+.game-diff::-webkit-scrollbar{display:none}
+.game-diff .cl{flex:none;font-size:11px;color:var(--tx3);padding-right:2px}
+.game-diff .gdiff[aria-pressed="true"]{background:var(--hdrbg);border-color:var(--hdrbg);color:#fff}
