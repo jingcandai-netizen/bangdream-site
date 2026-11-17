@@ -1,5 +1,5 @@
 /* 轻量离线缓存：页面骨架 + 数据 + 立绘。数据用 stale-while-revalidate，保证能看到更新。 */
-const V = "bdx-v9";
+const V = "bdx-v10";
 const SHELL = ["./", "index.html", "assets/style.css", "assets/app.js", "manifest.webmanifest"];
 const DATA = ["data/bands.json", "data/songs.json", "data/playlists.json", "data/changelog.json"];
 

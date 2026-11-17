@@ -90,10 +90,12 @@
       a.pause(); enabled = false; setLS(false); paint(); toast("背景音乐已关闭");
       return;
     }
-    // 优先：仓库里自带的 audio/bgm.mp3（你自己放的话）
+    // 优先：仓库里自带的 BGM（放根目录 bgm.mp3 或 audio/bgm.mp3 都行）
     if (!url) {
-      const ok = await fetch("audio/bgm.mp3", { method: "HEAD" }).then(r => r.ok).catch(() => false);
-      if (ok) { play("audio/bgm.mp3"); return }
+      for (const cand of ["audio/bgm.mp3", "bgm.mp3"]) {
+        const ok = await fetch(cand, { method: "HEAD" }).then(r => r.ok).catch(() => false);
+        if (ok) { play(cand); return }
+      }
     }
     // 其次：本机存过的文件
     if (!url) {
