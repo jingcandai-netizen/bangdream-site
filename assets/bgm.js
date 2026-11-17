@@ -47,11 +47,16 @@
       '<iframe id="bgm-frame" scrolling="no" frameborder="no" allow="autoplay" ' +
       'src="https://music.163.com/outchain/player?type=2&id=' + OFFICIAL.id + '&auto=1&height=66" ' +
       'style="width:100%;height:86px;border:0;border-radius:10px;background:#f5f5f7"></iframe>' +
-      '<p class="bgm-sub" style="margin-top:6px">也可以播放你本机的音频文件（只存本机、不上传）。</p>' +
-      '<button class="bgm-pick" type="button">选择本地音乐</button>';
+      '<p class="bgm-sub" style="margin-top:6px">播放器空白或无法播放，多半是会员曲目或网络限制——可以直接去官方页面听。</p>' +
+      '<div class="bgm-row">' +
+      '<a class="bgm-open" href="https://music.163.com/song?id=' + OFFICIAL.id + '" target="_blank" rel="noopener">在网易云打开 ↗</a>' +
+      '<button class="bgm-pick" type="button">选择本地音乐</button>' +
+      '</div>';
     document.body.appendChild(p);
     p.querySelector(".bgm-x").onclick = () => { p.hidden = true };
     p.querySelector(".bgm-pick").onclick = () => { input && input.click() };
+    // 6 秒后提示：播放器可能被网络/会员限制
+    setTimeout(() => { if (p && !p.hidden) toast("播放器没响应？点「在网易云打开」听正版") }, 6000);
     return p;
   }
 

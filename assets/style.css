@@ -657,3 +657,7 @@ body.hasplayer .bgm-btn{bottom:calc(98px + env(safe-area-inset-bottom))}
 .bgm-sub{font-size:10.5px;color:var(--tx3);line-height:1.6;margin:0 0 6px}
 .bgm-pick{width:100%;margin-top:8px;padding:9px;border-radius:10px;border:1px solid var(--line);
   background:var(--card2);color:var(--tx2);font-size:12px;font-weight:600}
+.bgm-row{display:flex;gap:8px;margin-top:8px}
+.bgm-row .bgm-pick,.bgm-row .bgm-open{flex:1;margin:0;padding:9px;border-radius:10px;border:1px solid var(--line);
+  background:var(--card2);color:var(--tx2);font-size:12px;font-weight:600;text-align:center;display:flex;align-items:center;justify-content:center}
+.bgm-row .bgm-open{background:var(--hdrbg);border-color:var(--hdrbg);color:#fff}
