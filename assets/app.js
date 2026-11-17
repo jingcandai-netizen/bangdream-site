@@ -822,6 +822,7 @@ function tip(m){const el=$("toast");el.textContent=m;el.classList.add("on");clea
       '<li><b>专辑视图</b>：345 张作品按发行日倒序，可按年份筛选、展开曲目。</li>' +
       '<li><b>歌单</b>：6 个主题（入门、动画关联、翻唱、LIVE、合唱、深夜系），人工挑选 + 规则生成各有标注。</li>' +
       '<li><b>可安装 / 离线</b>：加了 manifest 与 service worker，装到桌面后断网也能看已加载过的页面。</li>' +
+      '<li><b>玩一玩</b>：6 张梗图卡 + 梗图生成器（可下载 PNG）、猜歌名、成员归属、邦多利跳一跳（Canvas，最高分存本地）。</li>' +
       '</ul></div>');
   }
 

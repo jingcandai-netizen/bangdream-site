@@ -63,6 +63,7 @@
   function render(force) {
     if (!A) return;
     if (!built || force) { ensureMarkup(); renderMemes(); }
+    if (force && window.JumpGame && window.JumpGame.refresh) window.JumpGame.refresh();
   }
 
   function ensureMarkup() {
@@ -84,9 +85,18 @@
       '</div>' +
       '<div class="sech" style="margin-top:22px"><h2>小游戏</h2><p>用这份图鉴出的题，答错不扣分</p></div>' +
       '<div class="game" id="game-guess"></div>' +
-      '<div class="game" id="game-member"></div>';
+      '<div class="game" id="game-member"></div>' +
+      '<div class="game" id="game-jump">' +
+      '<div class="ghead"><div><h3>邦多利跳一跳</h3><p>按住蓄力，松开起跳；落在方块中心触发「完美」</p></div>' +
+      '<div class="gscore"><b id="jump-best">0</b><span>最高分</span></div></div>' +
+      '<div class="jumpwrap">' +
+      '<canvas id="jump-canvas" aria-label="跳一跳游戏区"></canvas>' +
+      '<div class="jump-hud"><span class="jscore" id="jump-score">0</span><span class="jcombo" id="jump-combo"></span></div>' +
+      '<div class="jump-overlay" id="jump-overlay"></div>' +
+      '</div></div>';
     bindGenerator();
     bindGames();
+    if (window.JumpGame) window.JumpGame.init(A);
   }
 
   /* ---------------- 梗图卡 ---------------- */
