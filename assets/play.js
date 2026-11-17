@@ -124,7 +124,7 @@
       '<div class="mini-overlay" id="rhythm-overlay"><div class="jump-tip">点轨道任意位置开始</div><button class="btn primary" id="rhythm-start" type="button">开始</button></div></div>' +
       '</div>' +
       '<div class="game" id="game-catch">' +
-      '<div class="ghead"><div><h3>接住音符</h3><p>按住屏幕左右拖动，接住掉落的音符，漏三个就结束</p></div>' +
+      '<div class="ghead"><div><h3>接住音符</h3><p>按住屏幕左右拖动，接住掉落的音符，漏五个就结束</p></div>' +
       '<div class="gscore"><b id="catch-best">0</b><span>最高分</span></div></div>' +
       '<div class="mini-hud"><span class="mscore" id="catch-score">0</span><span class="mhearts" id="catch-lives">♥♥♥♥♥</span></div>' +
       '<div class="mini-wrap"><canvas id="catch-canvas" aria-label="接住音符游戏区"></canvas>' +
