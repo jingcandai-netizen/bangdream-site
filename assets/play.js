@@ -115,6 +115,20 @@
       '<div class="jump-overlay" id="jump-overlay"></div>' +
       '</div>' +
       '<p class="jump-credit">角色抠图：抖音 @荆门交运迷 · 仅作粉丝向展示</p>' +
+      '</div>' +
+      '<div class="game" id="game-rhythm">' +
+      '<div class="ghead"><div><h3>节奏点点</h3><p>音符落到判定线时点对应轨道，连击越长分越高</p></div>' +
+      '<div class="gscore"><b id="rhythm-best">0</b><span>最高分</span></div></div>' +
+      '<div class="mini-hud"><span class="mscore" id="rhythm-score">0</span><span class="mcombo" id="rhythm-combo"></span><span class="mhearts" id="rhythm-lives">♥♥♥♥♥♥♥♥♥♥</span></div>' +
+      '<div class="mini-wrap"><canvas id="rhythm-canvas" aria-label="节奏点点游戏区"></canvas>' +
+      '<div class="mini-overlay" id="rhythm-overlay"><div class="jump-tip">点轨道任意位置开始</div><button class="btn primary" id="rhythm-start" type="button">开始</button></div></div>' +
+      '</div>' +
+      '<div class="game" id="game-catch">' +
+      '<div class="ghead"><div><h3>接住音符</h3><p>按住屏幕左右拖动，接住掉落的音符，漏三个就结束</p></div>' +
+      '<div class="gscore"><b id="catch-best">0</b><span>最高分</span></div></div>' +
+      '<div class="mini-hud"><span class="mscore" id="catch-score">0</span><span class="mhearts" id="catch-lives">♥♥♥♥♥</span></div>' +
+      '<div class="mini-wrap"><canvas id="catch-canvas" aria-label="接住音符游戏区"></canvas>' +
+      '<div class="mini-overlay" id="catch-overlay"><button class="btn primary" id="catch-start" type="button">开始</button></div></div>' +
       '</div>';
     bindGenerator();
     bindGames();
@@ -122,6 +136,7 @@
       window.JumpGame.init(A);
       renderJumpChars();
     }
+    if (window.MiniGames) window.MiniGames.init(A);
     else {
       const ov = document.getElementById("jump-overlay");
       if (ov) ov.innerHTML = '<div class="jump-tip">游戏脚本没加载成功，刷新页面试试</div>';
