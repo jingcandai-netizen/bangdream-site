@@ -37,6 +37,7 @@
     <button role="tab" data-tab="bands" aria-selected="false">乐队</button>
     <button role="tab" data-tab="albums" aria-selected="false">专辑</button>
     <button role="tab" data-tab="playlists" aria-selected="false">歌单</button>
+    <button role="tab" data-tab="play" aria-selected="false">玩</button>
     <button role="tab" data-tab="about" aria-selected="false">说明</button>
   </nav>
 </header>
@@ -64,6 +65,7 @@
           <button class="btn primary" id="hero-random">随机一首</button>
           <button class="btn" id="hero-today">换一首今日曲</button>
           <a class="btn ghost" href="#/playlists">编辑歌单 →</a>
+          <a class="btn ghost" href="#play">梗图 / 小游戏 →</a>
         </div>
       </div>
     </div>
@@ -160,6 +162,9 @@
     <div id="pldetail" hidden></div>
   </section>
 
+  <!-- 玩：梗图 + 小游戏 -->
+  <section class="view" id="v-play" hidden></section>
+
   <!-- 说明 -->
   <section class="view" id="v-about" hidden></section>
 </main>
@@ -181,6 +186,7 @@
 <div class="toast" id="toast" role="status"></div>
 <div class="boot" id="boot">正在载入图鉴数据…</div>
 
+<script src="assets/play.js" defer></script>
 <script src="assets/app.js" defer></script>
 </body>
 </html>

@@ -471,12 +471,13 @@ function switchTab(t,keepScroll,force){
   if(tabY[st.tab]!==undefined)tabY[st.tab]=window.scrollY;
   st.tab=t;
   document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===t)));
-  ["home","songs","bands","band","albums","playlists","about"].forEach(v=>{const el=$("v-"+v);if(el)el.hidden=(v!==t)});
+  ["home","songs","bands","band","albums","playlists","play","about"].forEach(v=>{const el=$("v-"+v);if(el)el.hidden=(v!==t)});
   window.scrollTo({top:(t==="band")?0:(tabY[t]||0),behavior:"auto"});
   setHash(t==="band"?"":t);
   if(t==="home")renderHome();
   else if(t==="albums")renderAlbums();
   else if(t==="playlists")renderPlaylists();
+  else if(t==="play"&&window.PlayModule)window.PlayModule.render(true);
   saveView();
   updateTotop();
 }
@@ -724,7 +725,7 @@ function tip(m){const el=$("toast");el.textContent=m;el.classList.add("on");clea
   }
 
   /* ================= 路由 ================= */
-  const VIEWS = ["home", "songs", "bands", "albums", "playlists", "about"];
+  const VIEWS = ["home", "songs", "bands", "albums", "playlists", "play", "about"];
   function setHash(h) {
     const t = h ? "#" + h : "";
     if (location.hash === t) return;
@@ -745,7 +746,7 @@ function tip(m){const el=$("toast");el.textContent=m;el.classList.add("on");clea
     const v = load(LS_VIEW, null);
     if (v && typeof v === "object") {
       st = Object.assign({}, DEF, v);
-      if (!["home", "songs", "bands", "about", "albums", "playlists"].includes(st.tab)) st.tab = "home";
+      if (!["home", "songs", "bands", "about", "albums", "playlists", "play"].includes(st.tab)) st.tab = "home";
       if (!["dateDesc", "dateAsc", "titleAsc"].includes(st.sort)) st.sort = "dateDesc";
     }
     wantK = new Set(load(LS_WANT, [])); heardK = new Set(load(LS_HEARD, []));
@@ -768,6 +769,9 @@ function tip(m){const el=$("toast");el.textContent=m;el.classList.add("on");clea
     renderPick();
     renderHomeBadges();
     renderAboutExtras();
+    if (window.PlayModule) {
+      window.PlayModule.init({ SONGS, BANDS, BMAP, BD, KIND, fmt, esc, tip, imgOf });
+    }
     pollMeta();
     if ("serviceWorker" in navigator && /^https?:/.test(location.protocol)) {
       navigator.serviceWorker.register("sw.js").catch(() => { });
