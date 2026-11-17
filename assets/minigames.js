@@ -57,9 +57,9 @@
   /* ---------------- 节奏点点 ---------------- */
   const rhythm = {
     cv: null, ctx: null, W: 0, H: 0, raf: 0, last: 0,
-    lanes: 4, notes: [], t: 0, beat: 0, speed: 260, score: 0, combo: 0, best: 0,
-    lives: 10, running: false, nextSpawn: 0, started: 0, hitFlash: [0, 0, 0, 0], missFlash: 0,
-    bpm: 128,
+    lanes: 4, notes: [], t: 0, beat: 0, speed: 200, score: 0, combo: 0, best: 0,
+    lives: 12, running: false, nextSpawn: 0, started: 0, hitFlash: [0, 0, 0, 0], missFlash: 0,
+    bpm: 100,
   };
 
   function rhythmInit() {
@@ -73,7 +73,7 @@
 
   function rhythmStart() {
     const ov = $("rhythm-overlay"); if (ov) ov.hidden = true;
-    Object.assign(rhythm, { notes: [], t: 0, beat: 0, score: 0, combo: 0, lives: 10, running: true, nextSpawn: 0, started: 0 });
+    Object.assign(rhythm, { notes: [], t: 0, beat: 0, score: 0, combo: 0, lives: 12, running: true, nextSpawn: 0, started: 0 });
     const sc = $("rhythm-score"); if (sc) sc.textContent = "0";
     ac(); rhythm.last = performance.now(); rhythm.started = rhythm.last;
     if (!rhythm.raf) rhythmLoop(rhythm.last);
@@ -87,20 +87,20 @@
     const beatMs = 60000 / rhythm.bpm;
     // 每拍生成 1~2 个音符
     if (rhythm.t >= rhythm.nextSpawn) {
-      const k = Math.random() < .35 ? 2 : 1;
+      const k = (rhythm.beat > 14 && Math.random() < .12) ? 2 : 1;
       for (let i = 0; i < k; i++) {
         rhythm.notes.push({ lane: Math.floor(Math.random() * rhythm.lanes), y: -20, hit: false, dead: false });
       }
       rhythm.nextSpawn = rhythm.t + beatMs * rnd(.85, 1.15);
       rhythm.beat++;
       if (rhythm.beat % 2 === 1) kick(); else hat();
-      rhythm.speed = 240 + Math.min(180, rhythm.beat * 2);
+      rhythm.speed = 190 + Math.min(110, rhythm.beat * 1.4);
     }
     const dtSec = dt / 1000;
-    const line = rhythm.H - 78;
+    const line = rhythm.H - 92;
     rhythm.notes.forEach(n => {
       n.y += rhythm.speed * dtSec;
-      if (!n.hit && n.y > line + 54) { n.dead = true; rhythmMiss() }
+      if (!n.hit && n.y > line + 72) { n.dead = true; rhythmMiss() }
     });
     rhythm.notes = rhythm.notes.filter(n => !n.dead);
     rhythm.hitFlash = rhythm.hitFlash.map(v => Math.max(0, v - dt / 160));
@@ -116,7 +116,7 @@
 
   function rhythmTap(lane) {
     if (!rhythm.running) return;
-    const line = rhythm.H - 78;
+    const line = rhythm.H - 92;
     let bestNote = null, bestDist = 1e9;
     rhythm.notes.forEach(n => {
       if (n.hit || n.lane !== lane) return;
@@ -124,9 +124,9 @@
       if (d < bestDist) { bestDist = d; bestNote = n }
     });
     rhythm.hitFlash[lane] = 1;
-    if (bestNote && bestDist <= 46) {
+    if (bestNote && bestDist <= 84) {
       bestNote.hit = true; bestNote.dead = true;
-      const perfect = bestDist <= 18;
+      const perfect = bestDist <= 36;
       rhythm.combo++;
       const gain = (perfect ? 100 : 50) + rhythm.combo * 2;
       rhythm.score += gain;
@@ -201,7 +201,7 @@
   /* ---------------- 接住音符 ---------------- */
   const cat = {
     cv: null, ctx: null, W: 0, H: 0, raf: 0, last: 0, running: false,
-    x: 0, targetX: 0, items: [], score: 0, lives: 5, best: 0, spawnT: 0, speed: 120, held: false,
+    x: 0, targetX: 0, items: [], score: 0, lives: 6, best: 0, spawnT: 0, speed: 96, held: false, dragging: false,
   };
   function catchInit() {
     const cv = $("catch-canvas"); if (!cv) return;
@@ -214,10 +214,10 @@
   }
   function catchStart() {
     const ov = $("catch-overlay"); if (ov) ov.hidden = true;
-    Object.assign(cat, { items: [], score: 0, lives: 5, spawnT: 0, speed: 120, running: true });
+    Object.assign(cat, { items: [], score: 0, lives: 6, spawnT: 0, speed: 96, running: true });
     cat.x = cat.W / 2; cat.targetX = cat.x;
     const sc = $("catch-score"); if (sc) sc.textContent = "0";
-    const lv = $("catch-lives"); if (lv) lv.textContent = "♥♥♥♥♥";
+    const lv = $("catch-lives"); if (lv) lv.textContent = "♥".repeat(6);
     cat.last = performance.now();
     if (!cat.raf) catchLoop(cat.last);
   }
@@ -226,18 +226,21 @@
     const dt = Math.min(60, t - cat.last); cat.last = t;
     if (!cat.running) { catchDraw(); return }
     const dtSec = dt / 1000;
-    cat.speed += dtSec * 6;
+    cat.speed += dtSec * 3.2;
     cat.spawnT += dtSec;
-    if (cat.spawnT > Math.max(.42, .95 - cat.score * .006)) {
+    if (cat.spawnT > Math.max(.62, 1.15 - cat.score * .004)) {
       cat.spawnT = 0;
       const star = Math.random() < .14;
-      cat.items.push({ x: rnd(26, cat.W - 26), y: -20, r: star ? 13 : 11, star, vy: cat.speed * rnd(.85, 1.25) });
+      cat.items.push({ x: rnd(26, cat.W - 26), y: -20, r: star ? 14 : 12, star, vy: cat.speed * rnd(.9, 1.15) });
     }
     cat.x += (cat.targetX - cat.x) * Math.min(1, dtSec * 12);
     const catY = cat.H - 54;
     cat.items.forEach(it => {
       it.y += it.vy * dtSec;
-      if (!it.dead && it.y > catY - 26 && it.y < catY + 30 && Math.abs(it.x - cat.x) < 34) {
+      // 靠近底部时轻微吸附，减少"明明碰到却没接到"
+      const catY0 = cat.H - 54;
+      if (it.y > catY0 - 110) it.x += (cat.x - it.x) * Math.min(1, dtSec * 3.2);
+      if (!it.dead && it.y > catY - 34 && it.y < catY + 34 && Math.abs(it.x - cat.x) < 48) {
         it.dead = true;
         cat.score += it.star ? 100 : 20;
         blip(it.star ? 1568 : 880, .09, .09, "triangle");
@@ -285,7 +288,7 @@
     // 底栏提示带
     c.fillStyle = "rgba(255,255,255,.06)"; c.fillRect(0, H - 90, W, 90);
     // 角色
-    const size = 64;
+    const size = 76;
     c.save(); c.translate(cat.x, H - 40); c.scale(-1, 1);
     if (window.__chibiImg) c.drawImage(window.__chibiImg, -size / 2, -size, size, size);
     c.restore();
@@ -309,7 +312,7 @@
         if (!rhythm.running) { rhythmStart(); return }
         const rect = cv.getBoundingClientRect();
         const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-        rhythmTap(clamp(Math.floor(x / (rhythm.W / rhythm.lanes)), 0, 3));
+        rhythmTap(clamp(Math.floor(x / (rect.width / rhythm.lanes)), 0, 3));
       };
       cv.addEventListener("pointerdown", e => { e.preventDefault(); onTap(e) });
       cv.addEventListener("touchstart", e => { e.preventDefault(); onTap(e) }, { passive: false });
@@ -323,8 +326,19 @@
         const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
         cat.targetX = clamp(x, 20, cat.W - 20);
       };
-      cvc.addEventListener("pointerdown", e => { e.preventDefault(); if (!cat.running) { catchStart(); return } move(e) });
-      cvc.addEventListener("pointermove", e => { if (cat.running) move(e) });
+      const onDown = e => {
+        e.preventDefault();
+        if (!cat.running) { catchStart(); return }
+        cat.dragging = true;
+        try { cvc.setPointerCapture(e.pointerId) } catch (_) { }
+        move(e);
+      };
+      const onMove = e => { if (cat.running && (cat.dragging || e.pointerType === "mouse")) move(e) };
+      const onUp = () => { cat.dragging = false };
+      cvc.addEventListener("pointerdown", onDown);
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+      window.addEventListener("pointercancel", onUp);
       cvc.addEventListener("touchmove", e => { e.preventDefault(); if (cat.running) move(e) }, { passive: false });
     }
     const cb = $("catch-start");
