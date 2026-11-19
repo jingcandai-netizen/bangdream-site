@@ -1,12 +1,12 @@
 {
- "version": "20261119132509",
+ "version": "20261119210426",
  "cut": "2026-11-19",
- "syncedAt": "2026-11-19T13:25:09.977Z",
+ "syncedAt": "2026-11-19T21:04:26.179Z",
  "source": "https://bang-dream.com/discographies",
  "counts": {
   "bands": 15,
-  "songs": 738,
-  "albums": 349,
+  "songs": 744,
+  "albums": 350,
   "images": 12
  },
  "byYear": {
@@ -21,10 +21,10 @@
   "2024": 86,
   "2025": 88,
   "2026": 103,
-  "2027": 11
+  "2027": 17
  },
  "byKind": {
-  "orig": 499,
+  "orig": 505,
   "live": 25,
   "cover": 197,
   "collab": 17
